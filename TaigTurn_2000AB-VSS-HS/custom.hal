@@ -1,0 +1,56 @@
+# Include your custom HAL commands here
+# This file will not be overwritten when you run stepconf again
+
+# Custom spindle speed filtering for Gmoccapy (1 pulse/rev encoder on phase A)
+# This smooths the noisy raw encoder velocity and provides filtered RPM to Gmoccapy
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Load filtering components
+# ──────────────────────────────────────────────────────────────────────────────
+loadrt lowpass names=spindle_lowpass
+loadrt mult2   names=spindle_mult
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Add functions to servo thread (must run after encoder and motion logic)
+# ──────────────────────────────────────────────────────────────────────────────
+addf spindle_lowpass servo-thread
+addf spindle_mult   servo-thread
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Configuration
+# ──────────────────────────────────────────────────────────────────────────────
+# Lowpass gain: smaller = more smoothing, slower response
+# Good starting values: 0.01 – 0.05
+# Too low → sluggish bar   Too high → still jumpy
+setp spindle_lowpass.gain 0.02
+
+# Convert filtered RPS → RPM
+setp spindle_mult.in1 60.0
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Signal connections
+# ──────────────────────────────────────────────────────────────────────────────
+# Take the raw RPS from the signal already created in Mach3Turn.hal
+net spindle-velocity-feedback-rps => spindle_lowpass.in
+
+# Lowpass output (smoothed RPS) → multiply by 60
+net spindle_rps_filtered spindle_lowpass.out => spindle_mult.in0
+
+# IMPORTANT: Remove the original direct connection from raw RPS to speed-in
+unlinkp spindle.0.speed-in
+
+# Now connect our filtered RPM value to what Gmoccapy reads
+net spindle_rpm_filtered spindle_mult.out => spindle.0.speed-in
+
+loadrt near names=spindle_near
+addf spindle_near servo-thread
+
+# Set the tolerance (e.g., 0.05 = 5% difference allowed)
+setp spindle_near.scale 1.05
+
+# Compare commanded RPM to your filtered RPM
+net spindle-cmd-rpm => spindle_near.in1
+net spindle_rpm_filtered => spindle_near.in2
+
+# Connect the result to the 'at-speed' signal
+net spindle-at-speed <= spindle_near.out
