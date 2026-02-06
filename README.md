@@ -1,4 +1,4 @@
-# TaigTurn_2000AB-VSS-HS_LinuxCNC_Config
+# TaigTurn 2000AB-VSS-HS LinuxCNC Config
 
 LinuxCNC configs for a stock MicroProto (Taig) VSS TaigTurn 2000AB Lathe using a parallel port, and GMOCCAPY interface. May not be perfect (suggestions/corrections/gripes/complaints welcome). Started with the provided Mach3 config and built out from there.
 
