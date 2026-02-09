@@ -22,8 +22,8 @@
   <property type="int" name="customhal" value="1"/>
   <property type="float" name="digitsin" value="15.0"/>
   <property type="float" name="digitsout" value="15.0"/>
-  <property type="float" name="dirhold" value="20000.0"/>
-  <property type="float" name="dirsetup" value="20000.0"/>
+  <property type="float" name="dirhold" value="58000.0"/>
+  <property type="float" name="dirsetup" value="58000.0"/>
   <property type="string" name="drivertype" value="other"/>
   <property type="float" name="floatsin" value="10.0"/>
   <property type="float" name="floatsout" value="10.0"/>
@@ -35,7 +35,7 @@
   <property type="bool" name="ladderconnect" value="True"/>
   <property type="int" name="ladderhaltype" value="0"/>
   <property type="string" name="laddername" value="custom.clp"/>
-  <property type="float" name="latency" value="28000.0"/>
+  <property type="float" name="latency" value="33000.0"/>
   <property type="eval" name="lparport" value="['0']"/>
   <property type="string" name="machinename" value="TaigTurn_2000AB-VSS-HS"/>
   <property type="bool" name="manualtoolchange" value="True"/>
@@ -160,8 +160,8 @@
   <property type="float" name="spindlepwm2" value="1.0"/>
   <property type="float" name="spindlespeed1" value="505.0"/>
   <property type="float" name="spindlespeed2" value="2500.0"/>
-  <property type="float" name="stepspace" value="5000.0"/>
-  <property type="float" name="steptime" value="5000.0"/>
+  <property type="float" name="stepspace" value="50.0"/>
+  <property type="float" name="steptime" value="10000.0"/>
   <property type="eval" name="tandemjoints" value="[]"/>
   <property type="int" name="tempexists" value="0"/>
   <property type="int" name="thcadenc" value="0"/>
