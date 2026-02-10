@@ -1,0 +1,11 @@
+# custom_postgui.hal
+# Loaded after Gmoccapy starts – safe place for GUI pin connections
+
+# Spindle RPM to feedback bar (as previously discussed)
+net spindle_rpm_filtered => gmoccapy.spindle_feedback_bar
+
+# At-speed LED in GUI
+net spindle-at-speed => gmoccapy.spindle_at_speed_led
+
+# Optional extras if you want them:
+# net spindle.0.on => gmoccapy.spindle-on-led  (if Gmoccapy has a running LED)

@@ -1,0 +1,59 @@
+# Include your custom HAL commands here
+# This file will not be overwritten when you run stepconf again
+
+# Custom spindle speed filtering for Gmoccapy (1 pulse/rev encoder on phase A)
+# Smooths noisy raw encoder velocity → filtered RPS for motion (G95/threading)
+# and filtered RPM available for Gmoccapy display
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Load filtering components
+# ──────────────────────────────────────────────────────────────────────────────
+loadrt lowpass names=spindle_lowpass
+loadrt mult2   names=spindle_mult
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Add functions to servo thread (must run after encoder and motion logic)
+# ──────────────────────────────────────────────────────────────────────────────
+addf spindle_lowpass servo-thread
+addf spindle_mult   servo-thread
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Configuration
+# ──────────────────────────────────────────────────────────────────────────────
+# Lowpass gain: smaller = more smoothing, slower response
+# Good starting values: 0.01 – 0.05 (0.02 is a solid default)
+setp spindle_lowpass.gain 0.02
+
+# Multiply by 60 for RPS → RPM conversion
+setp spindle_mult.in1 60.0
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Signal connections
+# ──────────────────────────────────────────────────────────────────────────────
+# Raw RPS from main HAL (encoder.0.velocity) → lowpass for smoothing
+net spindle-velocity-feedback-rps => spindle_lowpass.in
+
+# Filtered RPS → motion controller for correct G95 / threading
+net spindle_rps_filtered spindle_lowpass.out
+net spindle_rps_filtered => spindle.0.speed-in   # This is the key fix: RPS here!
+
+# Filtered RPS → multiply by 60 → RPM signal for display
+net spindle_rps_filtered => spindle_mult.in0
+net spindle_rpm_filtered spindle_mult.out
+
+# For your single-pin setup (Phase A and Index on same pin → use as Z/index)
+# If not already connected properly in main HAL, reinforce here
+net spindle-phase-a => encoder.0.phase-Z   # Ensures index pulse for threading sync
+
+# ──────────────────────────────────────────────────────────────────────────────
+# At-speed logic (compares commanded RPM to filtered RPM – unchanged)
+# ──────────────────────────────────────────────────────────────────────────────
+loadrt near names=spindle_near
+addf spindle_near servo-thread
+
+# Tolerance: 1.05 = allow up to 5% difference before at-speed lights up
+setp spindle_near.scale 1.05
+
+net spindle-cmd-rpm     => spindle_near.in1
+net spindle_rpm_filtered => spindle_near.in2
+net spindle-at-speed    <= spindle_near.out
