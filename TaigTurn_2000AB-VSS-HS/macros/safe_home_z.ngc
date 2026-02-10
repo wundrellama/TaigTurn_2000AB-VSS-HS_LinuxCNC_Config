@@ -1,0 +1,9 @@
+o<safe_home_z> sub
+
+(debug, Safe Home to Machine Z-Axis Zero)
+
+; Rapid to machine home (Z) - ignores tool offsets, WCS, etc.
+G53 G0 Z0     ; Move Z to machine zero (safe for lathe)
+
+o<safe_home_z> endsub
+M2
