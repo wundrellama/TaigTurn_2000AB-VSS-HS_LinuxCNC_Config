@@ -35,7 +35,8 @@ net spindle-velocity-feedback-rps => spindle_lowpass.in
 
 # Filtered RPS → motion controller for correct G95 / threading
 net spindle_rps_filtered spindle_lowpass.out
-net spindle_rps_filtered => spindle.0.speed-in   # This is the key fix: RPS here!
+unlinkp spindle.0.speed-in   # Disconnect original raw RPS from main HAL
+net spindle_rps_filtered => spindle.0.speed-in   # Connect filtered RPS instead
 
 # Filtered RPS → multiply by 60 → RPM signal for display
 net spindle_rps_filtered => spindle_mult.in0
