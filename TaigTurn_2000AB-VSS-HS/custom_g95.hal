@@ -24,7 +24,8 @@ net spindle_rps_filtered => spindle_mult.in0
 net spindle_rpm_filtered spindle_mult.out
 
 # Reinforce index pulse for threading sync (single-pin setup)
-net spindle-phase-a => encoder.0.phase-Z
+unlinkp encoder.0.phase-Z          # Removes empty 'spindle-index' signal from main HAL (avoids duplicate link error)
+net spindle-phase-a => encoder.0.phase-Z   # Drives phase-Z with same input as phase-A (parport pin 15)
 
 # At-speed generator (compares RPM values)
 loadrt near names=spindle_near
