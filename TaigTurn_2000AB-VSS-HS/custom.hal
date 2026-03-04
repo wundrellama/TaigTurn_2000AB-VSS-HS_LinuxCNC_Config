@@ -1,37 +1,56 @@
-# custom.hal
-# Loaded after main StepConf HAL - safe to override spindle feedback here
+# Include your custom HAL commands here
+# This file will not be overwritten when you run stepconf again
 
-# Load components first (order matters for addf)
+# Custom spindle speed filtering for Gmoccapy (1 pulse/rev encoder on phase A)
+# This smooths the noisy raw encoder velocity and provides filtered RPM to Gmoccapy
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Load filtering components
+# ──────────────────────────────────────────────────────────────────────────────
 loadrt lowpass names=spindle_lowpass
 loadrt mult2   names=spindle_mult
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Add functions to servo thread (must run after encoder and motion logic)
+# ──────────────────────────────────────────────────────────────────────────────
 addf spindle_lowpass servo-thread
 addf spindle_mult   servo-thread
 
-# Tuning
-setp spindle_lowpass.gain 0.02     # Increase to 0.03-0.05 if bar responds too slowly; decrease if noisy
-setp spindle_mult.in1 60.0         # RPS to RPM
+# ──────────────────────────────────────────────────────────────────────────────
+# Configuration
+# ──────────────────────────────────────────────────────────────────────────────
+# Lowpass gain: smaller = more smoothing, slower response
+# Good starting values: 0.01 – 0.05
+# Too low → sluggish bar   Too high → still jumpy
+setp spindle_lowpass.gain 0.02
 
-# Override the original direct raw RPS connection
-unlinkp spindle.0.speed-in         # Removes encoder.0.velocity => spindle.0.speed-in from main HAL
+# Convert filtered RPS → RPM
+setp spindle_mult.in1 60.0
 
-# Now safely insert filtered path
+# ──────────────────────────────────────────────────────────────────────────────
+# Signal connections
+# ──────────────────────────────────────────────────────────────────────────────
+# Take the raw RPS from the signal already created in Mach3Turn.hal
 net spindle-velocity-feedback-rps => spindle_lowpass.in
-net spindle_rps_filtered spindle_lowpass.out => spindle.0.speed-in   # Filtered RPS for G95/threading
 
-# Derive RPM for display (branches from filtered RPS)
-net spindle_rps_filtered => spindle_mult.in0
-net spindle_rpm_filtered spindle_mult.out
+# Lowpass output (smoothed RPS) → multiply by 60
+net spindle_rps_filtered spindle_lowpass.out => spindle_mult.in0
 
-# Reinforce index pulse for threading sync (single-pin setup)
-unlinkp encoder.0.phase-Z          # Removes empty 'spindle-index' signal from main HAL (avoids duplicate link error)
-net spindle-phase-a => encoder.0.phase-Z   # Drives phase-Z with same input as phase-A (parport pin 15)
+# IMPORTANT: Remove the original direct connection from raw RPS to speed-in
+unlinkp spindle.0.speed-in
 
-# At-speed generator (compares RPM values)
+# Now connect our filtered RPM value to what Gmoccapy reads
+net spindle_rpm_filtered spindle_mult.out => spindle.0.speed-in
+
 loadrt near names=spindle_near
 addf spindle_near servo-thread
-setp spindle_near.scale 1.05       # ~5% tolerance; adjust to 1.02-1.10 as needed
 
-net spindle-cmd-rpm     => spindle_near.in1
+# Set the tolerance (e.g., 0.05 = 5% difference allowed)
+setp spindle_near.scale 1.05
+
+# Compare commanded RPM to your filtered RPM
+net spindle-cmd-rpm => spindle_near.in1
 net spindle_rpm_filtered => spindle_near.in2
-net spindle-at-speed    <= spindle_near.out
+
+# Connect the result to the 'at-speed' signal
+net spindle-at-speed <= spindle_near.out

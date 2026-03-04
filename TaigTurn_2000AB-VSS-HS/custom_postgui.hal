@@ -1,11 +1,18 @@
+# Include your custom_postgui HAL commands here
+# This file will not be overwritten when you run stepconf again
+
 # custom_postgui.hal
-# Loaded after Gmoccapy starts – safe place for GUI pin connections
+# Connect filtered spindle RPM to Gmoccapy's spindle bar
+# (Run AFTER GUI loads, so gmoccapy pins exist)
 
-# Spindle RPM to feedback bar (as previously discussed)
-net spindle_rpm_filtered => gmoccapy.spindle_feedback_bar
+# Optional: If you want absolute/positive RPM only (good for lathe display)
+# loadrt abs names=spindle_abs_post
+# addf spindle_abs_post servo-thread
+# net spindle_rpm_filtered spindle_mult.out => spindle_abs_post.in
+# net spindle_rpm_abs     spindle_abs_post.out => gmoccapy.spindle_feedback_bar
 
-# At-speed LED in GUI
+# Simple direct connection (use this first)
+net spindle_rpm_filtered spindle_mult.out => gmoccapy.spindle_feedback_bar
+
+# Bonus: Connect at-speed if you want the LED to work too
 net spindle-at-speed => gmoccapy.spindle_at_speed_led
-
-# Optional extras if you want them:
-# net spindle.0.on => gmoccapy.spindle-on-led  (if Gmoccapy has a running LED)

@@ -59,7 +59,7 @@
   <property type="bool" name="pin15inv" value="True"/>
   <property type="string" name="pin16" value="spindle-pwm"/>
   <property type="bool" name="pin16inv" value="False"/>
-  <property type="string" name="pin17" value="unused-output"/>
+  <property type="string" name="pin17" value="coolant-flood"/>
   <property type="bool" name="pin17inv" value="False"/>
   <property type="bool" name="pin1inv" value="False"/>
   <property type="string" name="pin2" value="xdir"/>
@@ -152,7 +152,7 @@
   <property type="bool" name="select_qtdragon" value="False"/>
   <property type="bool" name="select_qtplasmac" value="False"/>
   <property type="bool" name="sim_hardware" value="False"/>
-  <property type="float" name="spindlecarrier" value="1000.0"/>
+  <property type="float" name="spindlecarrier" value="1200.0"/>
   <property type="float" name="spindlecpr" value="1.0"/>
   <property type="float" name="spindlefiltergain" value="0.02"/>
   <property type="float" name="spindlenearscale" value="1.0"/>
@@ -205,9 +205,9 @@
   <property type="float" name="xhomevel" value="0.25"/>
   <property type="int" name="xlatchdir" value="1"/>
   <property type="float" name="xleadscrew" value="20.32"/>
-  <property type="float" name="xmaxacc" value="5.0"/>
+  <property type="float" name="xmaxacc" value="12.0"/>
   <property type="float" name="xmaxlim" value="0.125"/>
-  <property type="float" name="xmaxvel" value="1.6667"/>
+  <property type="float" name="xmaxvel" value="3.0"/>
   <property type="float" name="xmicrostep" value="1.0"/>
   <property type="float" name="xminlim" value="-11.25"/>
   <property type="float" name="xpulleyden" value="1.0"/>
@@ -233,9 +233,9 @@
   <property type="float" name="zhomevel" value="0.25"/>
   <property type="int" name="zlatchdir" value="1"/>
   <property type="float" name="zleadscrew" value="20.32"/>
-  <property type="float" name="zmaxacc" value="5.0"/>
+  <property type="float" name="zmaxacc" value="12.0"/>
   <property type="float" name="zmaxlim" value="0.125"/>
-  <property type="float" name="zmaxvel" value="1.6667"/>
+  <property type="float" name="zmaxvel" value="3.0"/>
   <property type="float" name="zmicrostep" value="1.0"/>
   <property type="float" name="zminlim" value="-5.875"/>
   <property type="float" name="zpulleyden" value="1.0"/>
