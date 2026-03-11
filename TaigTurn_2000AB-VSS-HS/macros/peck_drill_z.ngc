@@ -1,0 +1,50 @@
+O<peck_drill_z> sub
+( Peck drilling along Z for lathe, with optional dwells )
+( Call example: O<peck_drill_z> call [depth] [peck] [retract] [feed] [bottom_dwell] [retract_dwell] )
+( #1 = total depth          e.g. -1.250   (negative Z) )
+( #2 = peck increment       e.g. 0.100    (positive) )
+( #3 = retract height       e.g. 0.050    (safe Z above start) )
+( #4 = feed rate            e.g. 4.0      (units/min) )
+( #5 = bottom dwell (sec)   e.g. 0.5      (optional, default 0) )
+( #6 = retract dwell (sec)  e.g. 0.2      (optional, default 0) )
+
+#<depth>       = #1
+#<peck>        = #2
+#<retract>     = #3
+#<feed>        = #4
+#<bottom_dwell> = [#5 ? 0]    (use 0 if not provided)
+#<retract_dwell> = [#6 ? 0]
+
+( Validation )
+o<err> if [#<depth> GE 0]
+  (debug, Depth must be negative!)
+  M2
+o<err> endif
+o<err> if [#<peck> LE 0]
+  (debug, Peck must be positive!)
+  M2
+o<err> endif
+
+#<current_z> = #<_z>   (start from current Z, assumed to be retract/safe)
+
+o<loop> while [#<current_z> GT #<depth>]
+  #<next_z> = [#<current_z> - #<peck>]
+
+  o<clamp> if [#<next_z> LT #<depth>]
+    #<next_z> = #<depth>
+  o<clamp> endif
+
+  G1 Z#<next_z> F#<feed>          (feed to peck depth)
+
+  G4 P#<bottom_dwell>             (dwell at bottom)
+
+  G0 Z#<retract>                  (rapid retract)
+
+  G4 P#<retract_dwell>            (dwell after retract)
+
+  #<current_z> = #<next_z>
+o<loop> endwhile
+
+G0 Z#<retract>                    (final retract, redundant but safe)
+M99                               (return)
+O<peck_drill_z> endsub
